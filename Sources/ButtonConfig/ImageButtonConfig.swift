@@ -1,5 +1,5 @@
 //
-//  ButtonConfig.swift
+//  ImageButtonConfig.swift
 //
 //  Created by Franklyn Weber on 12/02/2021.
 //
@@ -8,13 +8,11 @@ import SwiftUI
 import FWCommonProtocols
 
 
-public struct ButtonConfig: Identifiable {
+public struct ImageButtonConfig: Identifiable {
     
     public let id: String
     
-    let title: String
-    let iconName: SystemImageNaming?
-    let shouldAppear: () -> Bool
+    let iconName: SystemImageNaming
     let itemType: ButtonType
     
     public enum ButtonType: Equatable {
@@ -56,68 +54,43 @@ public struct ButtonConfig: Identifiable {
     
     /// Initialiser for a button item
     /// - Parameters:
-    ///   - title: the button's title
     ///   - systemImage: a systemImage to use for the icon - if nil, no icon will appear
-    ///   - shouldAppear: a closure to control whether or not the menu item should appear
     ///   - action: the action invoked when the item is selected
     /// - Returns: a ButtonConfig instance
-    public init(title: String? = nil, systemImage: SystemImageNaming? = nil, shouldAppear: (() -> Bool)? = nil, action: @escaping () -> ()) {
+    public init(systemImage: SystemImageNaming, action: @escaping () -> ()) {
         id = UUID().uuidString
         itemType = .button(action: action)
-        self.title = title ?? ""
         self.iconName = systemImage
-        self.shouldAppear = shouldAppear ?? { true }
     }
     
     /// Initialiser for a sub-menu item
     /// - Parameters:
-    ///   - title: the button's title
     ///   - systemImage: a systemImage to use for the icon - if nil, no icon will appear
-    ///   - shouldAppear: a closure to control whether or not the menu item should appear
     ///   - subButtons: the sub-menu items which will apeear when this item is selected
     /// - Returns: a ButtonConfig instance
-    public init(title: String? = nil, systemImage: SystemImageNaming? = nil, shouldAppear: (() -> Bool)? = nil, menuItems: [ButtonConfig]) {
+    public init(systemImage: SystemImageNaming, menuItems: [ButtonConfig]) {
         id = UUID().uuidString
         itemType = .menu(subMenus: menuItems)
-        self.title = title ?? ""
         self.iconName = systemImage
-        self.shouldAppear = shouldAppear ?? { true }
-    }
-    
-    /// The view for this Button
-    /// - Parameter itemId: the item's id
-    /// - Returns: an AnyView instance, either a button row or a sub-menu row
-    @ViewBuilder
-    public func item() -> some View {
-        
-        if shouldAppear() == true {
-            FWButton(config: self)
-        }
     }
 }
 
 
-extension ButtonConfig {
+extension ImageButtonConfig {
     
-    public func menuItem() -> UIMenuElement? {
+    public var barButtonItem: UIBarButtonItem? {
         
-        guard shouldAppear() else {
-            return nil
-        }
-        
-        let image: UIImage?
-        
-        if let iconName = iconName {
-            image = UIImage(systemName: iconName.systemImageName)
-        } else {
-            image = nil
-        }
-        
-        switch itemType {
+        switch self.itemType {
         case .button(let action):
-            return UIAction(title: title, image: image) { _ in action() }
+            return UIBarButtonItem.button(with: iconName, action: action)
         case .menu(let subButtons):
-            return UIMenu(title: title, image: UIImage(systemName: "chevron.right"), children: subButtons.compactMap { $0.menuItem() })
+            
+            let button = UIBarButtonItem(image: UIImage(systemName: iconName.systemImageName), style: .plain, target: nil, action: nil)
+            let menu = UIMenu(title: "", children: subButtons.compactMap { $0.menuItem() })
+            
+            button.menu = menu
+            
+            return button
         }
     }
 }
