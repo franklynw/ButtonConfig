@@ -88,7 +88,7 @@ public struct ButtonConfig: Identifiable {
     /// - Parameter itemId: the item's id
     /// - Returns: an AnyView instance, either a button row or a sub-menu row
     @ViewBuilder
-    func item() -> some View {
+    public func item() -> some View {
         
         if shouldAppear() == true {
             
@@ -146,7 +146,7 @@ extension ButtonConfig {
         }
     }
     
-    func menuItem() -> UIMenuElement? {
+    public func menuItem() -> UIMenuElement? {
         
         guard shouldAppear() else {
             return nil
