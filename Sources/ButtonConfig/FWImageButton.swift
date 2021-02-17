@@ -17,6 +17,10 @@ public struct FWImageButton: View {
     internal var accentColor: Color?
     
     
+    public init(_ config: ImageButtonConfig) {
+        self.config = config
+    }
+    
     public var body: some View {
         
         switch config.itemType {
@@ -53,7 +57,9 @@ public struct FWImageButton: View {
         if let size = size {
             Image(systemName: config.iconName.systemImageName)
                 .resizable()
-                .frame(width: size.width, height: 27)
+                .frame(width: size.width, height: size.height)
+        } else {
+            Image(systemName: config.iconName.systemImageName)
         }
     }
 }
@@ -87,6 +93,8 @@ fileprivate extension View {
     func withFont(_ font: Font?) -> some View {
         if let font = font {
             self.font(font)
+        } else {
+            self
         }
     }
     
@@ -94,6 +102,8 @@ fileprivate extension View {
     func withColor(_ color: Color?) -> some View {
         if let color = color {
             self.accentColor(color)
+        } else {
+            self
         }
     }
 }

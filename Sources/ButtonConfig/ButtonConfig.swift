@@ -90,8 +90,32 @@ public struct ButtonConfig: Identifiable {
     @ViewBuilder
     public func item() -> some View {
         
-        if shouldAppear() == true {
-            FWButton(config: self)
+        switch itemType {
+        case .button(let action):
+            
+            let button = Button(action: {
+                action()
+            }) {
+                Text(title)
+                
+                if let iconName = iconName {
+                    Image(systemName: iconName.systemImageName)
+                }
+            }
+            
+            AnyView(button)
+            
+        case .menu(let subButtons):
+            
+            let menu = Menu {
+                ForEach(subButtons) { button in
+                    button.item()
+                }
+            } label: {
+                Label(title, systemImage: iconName?.systemImageName ?? "chevron.right")
+            }
+            
+            AnyView(menu)
         }
     }
 }
