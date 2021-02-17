@@ -19,7 +19,7 @@ public struct ButtonConfig: Identifiable {
     
     public enum ButtonType: Equatable {
         case button(action: () -> ())
-        case menu(subMenus: [ButtonConfig])
+        case menu(menuSections: [MenuSection])
         
         public static func == (lhs: ButtonType, rhs: ButtonType) -> Bool {
             switch (lhs, rhs) {
@@ -43,12 +43,12 @@ public struct ButtonConfig: Identifiable {
             return false
         }
         
-        func subButtons(parentId: String) -> [ButtonConfig] {
+        func menuSections() -> [MenuSection] {
             switch self {
             case .button:
                 return []
-            case .menu(let subButtons):
-                return subButtons
+            case .menu(let menuSections):
+                return menuSections
             }
         }
     }
@@ -76,9 +76,9 @@ public struct ButtonConfig: Identifiable {
     ///   - shouldAppear: a closure to control whether or not the menu item should appear
     ///   - subButtons: the sub-menu items which will apeear when this item is selected
     /// - Returns: a ButtonConfig instance
-    public init(title: String? = nil, systemImage: SystemImageNaming? = nil, shouldAppear: (() -> Bool)? = nil, menuItems: [ButtonConfig]) {
+    public init(title: String? = nil, systemImage: SystemImageNaming? = nil, shouldAppear: (() -> Bool)? = nil, menuSections: [MenuSection]) {
         id = UUID().uuidString
-        itemType = .menu(subMenus: menuItems)
+        itemType = .menu(menuSections: menuSections)
         self.title = title ?? ""
         self.iconName = systemImage
         self.shouldAppear = shouldAppear ?? { true }
@@ -105,11 +105,15 @@ public struct ButtonConfig: Identifiable {
             
             AnyView(button)
             
-        case .menu(let subButtons):
+        case .menu(let menuSections):
             
             let menu = Menu {
-                ForEach(subButtons) { button in
-                    button.item()
+                ForEach(menuSections) { menuSection in
+                    Section {
+                        ForEach(menuSection.menuItems) { menuItem in
+                            menuItem.item()
+                        }
+                    }
                 }
             } label: {
                 Label(title, systemImage: iconName?.systemImageName ?? "chevron.right")
@@ -140,8 +144,11 @@ extension ButtonConfig {
         switch itemType {
         case .button(let action):
             return UIAction(title: title, image: image) { _ in action() }
-        case .menu(let subButtons):
-            return UIMenu(title: title, image: UIImage(systemName: "chevron.right"), children: subButtons.compactMap { $0.menuItem() })
+        case .menu(let menuSections):
+            
+            let menuItems = menuSections.map { UIMenu(title: "", options: .displayInline, children: $0.menuItems.compactMap { $0.menuItem() })}
+            
+            return UIMenu(title: title, image: UIImage(systemName: "chevron.right"), children: menuItems)
         }
     }
 }

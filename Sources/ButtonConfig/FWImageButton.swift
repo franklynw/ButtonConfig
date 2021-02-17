@@ -36,11 +36,15 @@ public struct FWImageButton: View {
             
             AnyView(button)
             
-        case .menu(let subButtons):
+        case .menu(let menuSections):
             
             let menu = Menu {
-                ForEach(subButtons) { button in
-                    button.item()
+                ForEach(menuSections) { menuSection in
+                    Section {
+                        ForEach(menuSection.menuItems) { menuItem in
+                            menuItem.item()
+                        }
+                    }
                 }
             } label: {
                 sized(fixedSize)

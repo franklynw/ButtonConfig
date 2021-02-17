@@ -17,7 +17,7 @@ public struct ImageButtonConfig: Identifiable {
     
     public enum ButtonType: Equatable {
         case button(action: () -> ())
-        case menu(subMenus: [ButtonConfig])
+        case menu(menuSections: [MenuSection])
         
         public static func == (lhs: ButtonType, rhs: ButtonType) -> Bool {
             switch (lhs, rhs) {
@@ -41,12 +41,12 @@ public struct ImageButtonConfig: Identifiable {
             return false
         }
         
-        func subButtons(parentId: String) -> [ButtonConfig] {
+        func menuSections() -> [MenuSection] {
             switch self {
             case .button:
                 return []
-            case .menu(let subButtons):
-                return subButtons
+            case .menu(let menuSections):
+                return menuSections
             }
         }
     }
@@ -68,9 +68,9 @@ public struct ImageButtonConfig: Identifiable {
     ///   - systemImage: a systemImage to use for the icon - if nil, no icon will appear
     ///   - subButtons: the sub-menu items which will apeear when this item is selected
     /// - Returns: a ButtonConfig instance
-    public init(systemImage: SystemImageNaming, menuItems: [ButtonConfig]) {
+    public init(systemImage: SystemImageNaming, menuSections: [MenuSection]) {
         id = UUID().uuidString
-        itemType = .menu(subMenus: menuItems)
+        itemType = .menu(menuSections: menuSections)
         self.iconName = systemImage
     }
 }
@@ -83,10 +83,12 @@ extension ImageButtonConfig {
         switch self.itemType {
         case .button(let action):
             return UIBarButtonItem.button(with: iconName, action: action)
-        case .menu(let subButtons):
+        case .menu(let menuSections):
+            
+            let menuItems = menuSections.map { UIMenu(title: "", options: .displayInline, children: $0.menuItems.compactMap { $0.menuItem() })}
             
             let button = UIBarButtonItem(image: UIImage(systemName: iconName.systemImageName), style: .plain, target: nil, action: nil)
-            let menu = UIMenu(title: "", children: subButtons.compactMap { $0.menuItem() })
+            let menu = UIMenu(title: "", children: menuItems)
             
             button.menu = menu
             
