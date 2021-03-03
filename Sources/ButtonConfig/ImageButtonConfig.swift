@@ -78,7 +78,34 @@ public struct ImageButtonConfig: Identifiable {
 
 extension ImageButtonConfig {
     
-    public var barButtonItem: UIBarButtonItem? {
+    public var button: UIButton {
+        
+        switch self.itemType {
+        case .button(let action):
+            
+            let buttonAction = UIAction { _ in
+                action()
+            }
+            let button = UIButton(type: .system, primaryAction: buttonAction)
+            button.setImage(UIImage(systemName: iconName.systemImageName), for: UIControl.State())
+            
+            return button
+            
+        case .menu(let menuSections):
+            
+            let button = UIButton(type: .system)
+            button.setImage(UIImage(systemName: iconName.systemImageName), for: UIControl.State())
+            
+            let menuItems = menuSections.map { UIMenu(title: "", options: .displayInline, children: $0.menuItems.compactMap { $0.menuItem() })}
+            let menu = UIMenu(title: "", children: menuItems)
+            
+            button.menu = menu
+            
+            return button
+        }
+    }
+    
+    public var barButtonItem: UIBarButtonItem {
         
         switch self.itemType {
         case .button(let action):
