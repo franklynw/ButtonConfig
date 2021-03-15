@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FWMenu
 
 
 public struct FWImageButton: View {
@@ -53,6 +54,12 @@ public struct FWImageButton: View {
             }
             
             AnyView(menu)
+            
+        case .fwMenu(_, let menuContent):
+            
+            let imageSystemName = config.iconName.systemImageName
+            
+            FWMenu(imageSystemName: imageSystemName, sections: menuContent)
         }
     }
     
