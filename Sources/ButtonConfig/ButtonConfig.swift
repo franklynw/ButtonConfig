@@ -19,7 +19,7 @@ public struct ButtonConfig: Identifiable {
     
     public enum ButtonType: Equatable {
         case button(action: () -> ())
-        case menu(subMenus: [ButtonConfig])
+        case menu(menuSections: [MenuSection])
         
         public static func == (lhs: ButtonType, rhs: ButtonType) -> Bool {
             switch (lhs, rhs) {
@@ -43,12 +43,12 @@ public struct ButtonConfig: Identifiable {
             return false
         }
         
-        func subButtons(parentId: String) -> [ButtonConfig] {
+        func menuSections() -> [MenuSection] {
             switch self {
             case .button:
                 return []
-            case .menu(let subButtons):
-                return subButtons
+            case .menu(let menuSections):
+                return menuSections
             }
         }
     }
@@ -56,30 +56,30 @@ public struct ButtonConfig: Identifiable {
     
     /// Initialiser for a button item
     /// - Parameters:
-    ///   - title: the menu item's title
+    ///   - title: the button's title
     ///   - systemImage: a systemImage to use for the icon - if nil, no icon will appear
     ///   - shouldAppear: a closure to control whether or not the menu item should appear
     ///   - action: the action invoked when the item is selected
     /// - Returns: a ButtonConfig instance
-    public init(title: String = "", systemImage: SystemImageNaming? = nil, shouldAppear: (() -> Bool)? = nil, action: @escaping () -> ()) {
+    public init(title: String? = nil, systemImage: SystemImageNaming? = nil, shouldAppear: (() -> Bool)? = nil, action: @escaping () -> ()) {
         id = UUID().uuidString
         itemType = .button(action: action)
-        self.title = title
+        self.title = title ?? ""
         self.iconName = systemImage
         self.shouldAppear = shouldAppear ?? { true }
     }
     
     /// Initialiser for a sub-menu item
     /// - Parameters:
-    ///   - title: the menu item's title
+    ///   - title: the button's title
     ///   - systemImage: a systemImage to use for the icon - if nil, no icon will appear
     ///   - shouldAppear: a closure to control whether or not the menu item should appear
     ///   - subButtons: the sub-menu items which will apeear when this item is selected
     /// - Returns: a ButtonConfig instance
-    public init(title: String = "", systemImage: SystemImageNaming? = nil, shouldAppear: (() -> Bool)? = nil, menuItems: [ButtonConfig]) {
+    public init(title: String? = nil, systemImage: SystemImageNaming? = nil, shouldAppear: (() -> Bool)? = nil, menuSections: [MenuSection]) {
         id = UUID().uuidString
-        itemType = .menu(subMenus: menuItems)
-        self.title = title
+        itemType = .menu(menuSections: menuSections)
+        self.title = title ?? ""
         self.iconName = systemImage
         self.shouldAppear = shouldAppear ?? { true }
     }
@@ -90,61 +90,42 @@ public struct ButtonConfig: Identifiable {
     @ViewBuilder
     public func item() -> some View {
         
-        if shouldAppear() == true {
+        switch itemType {
+        case .button(let action):
             
-            switch itemType {
-            case .button(let action):
+            let button = Button(action: {
+                action()
+            }) {
+                Text(title)
                 
-                let button = Button(action: {
-                    action()
-                }) {
-                    Text(self.title)
-                    
-                    if let iconName = iconName {
-                        Image(systemName: iconName.systemImageName)
-                    }
+                if let iconName = iconName {
+                    Image(systemName: iconName.systemImageName)
                 }
-                
-                AnyView(button)
-                
-            case .menu(let subButtons):
-                
-                let menu = Menu {
-                    ForEach(subButtons) { button in
-                        button.item()
-                    }
-                } label: {
-                    Label(self.title, systemImage: iconName?.systemImageName ?? "chevron.right")
-                }
-                
-                AnyView(menu)
             }
+            
+            AnyView(button)
+            
+        case .menu(let menuSections):
+            
+            let menu = Menu {
+                ForEach(menuSections) { menuSection in
+                    Section {
+                        ForEach(menuSection.menuItems) { menuItem in
+                            menuItem.item()
+                        }
+                    }
+                }
+            } label: {
+                Label(title, systemImage: iconName?.systemImageName ?? "chevron.right")
+            }
+            
+            AnyView(menu)
         }
     }
 }
 
 
 extension ButtonConfig {
-    
-    public var barButtonItem: UIBarButtonItem? {
-        
-        guard let iconName = iconName else {
-            return nil
-        }
-        
-        switch self.itemType {
-        case .button(let action):
-            return UIBarButtonItem.button(with: iconName, action: action)
-        case .menu(let subButtons):
-            
-            let button = UIBarButtonItem(image: UIImage(systemName: iconName.systemImageName), style: .plain, target: nil, action: nil)
-            let menu = UIMenu(title: "", children: subButtons.compactMap { $0.menuItem() })
-            
-            button.menu = menu
-            
-            return button
-        }
-    }
     
     public func menuItem() -> UIMenuElement? {
         
@@ -163,8 +144,11 @@ extension ButtonConfig {
         switch itemType {
         case .button(let action):
             return UIAction(title: title, image: image) { _ in action() }
-        case .menu(let subButtons):
-            return UIMenu(title: title, image: UIImage(systemName: "chevron.right"), children: subButtons.compactMap { $0.menuItem() })
+        case .menu(let menuSections):
+            
+            let menuItems = menuSections.map { UIMenu(title: "", options: .displayInline, children: $0.menuItems.compactMap { $0.menuItem() })}
+            
+            return UIMenu(title: title, image: UIImage(systemName: "chevron.right"), children: menuItems)
         }
     }
 }

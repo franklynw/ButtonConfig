@@ -13,11 +13,12 @@ let package = Package(
             name: "ButtonConfig",
             targets: ["ButtonConfig"]),
     ],
-    dependencies: [.package(name: "FWCommonProtocols", url: "https://github.com/franklynw/FWCommonProtocols.git", .upToNextMajor(from: "1.0.0"))],
+    dependencies: [.package(name: "FWCommonProtocols", url: "https://github.com/franklynw/FWCommonProtocols.git", .upToNextMajor(from: "1.0.0")),
+                   .package(name: "FWMenu", url: "https://github.com/franklynw/FWMenu.git", .upToNextMajor(from: "1.0.0"))],
     targets: [
         .target(
             name: "ButtonConfig",
-            dependencies: ["FWCommonProtocols"]),
+            dependencies: ["FWCommonProtocols", "FWMenu"]),
         .testTarget(
             name: "ButtonConfigTests",
             dependencies: ["ButtonConfig"]),
