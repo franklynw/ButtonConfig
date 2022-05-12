@@ -271,4 +271,17 @@ extension ImageButtonConfig: FWMenuPresenting {
     public var font: Font? {
         return nil
     }
+    
+    public var forceFullScreen: Bool {
+        
+        switch itemType {
+        case .fwMenu(let menuType, _):
+            switch menuType {
+            case .standard(_, let presentedFromKeyboardAccessory), .settings(_, let presentedFromKeyboardAccessory):
+                return presentedFromKeyboardAccessory
+            }
+        default:
+            fatalError("This item type doesn't support FWMenu")
+        }
+    }
 }
