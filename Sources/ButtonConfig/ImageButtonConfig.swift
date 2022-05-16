@@ -131,7 +131,7 @@ public struct ImageButtonConfig: Identifiable {
 
 extension ImageButtonConfig {
     
-    public var button: UIButton {
+    public var uiButton: UIButton {
         
         switch self.itemType {
         case .button(let action):
@@ -168,6 +168,30 @@ extension ImageButtonConfig {
             button.setImage(image ?? UIImage(systemName: iconName.systemImageName), for: UIControl.State())
             
             return button
+        }
+    }
+    
+    @ViewBuilder
+    public func button(color: Color? = nil) -> some View {
+        
+        switch self.itemType {
+        case .button(let action):
+            
+            Button(action: action) {
+                buttonImage()
+                    .foregroundColor(color)
+            }
+            
+        case .menu, .fwMenu:
+            fatalError("Can't be used to create SwiftUI buttons for menus")
+        }
+    }
+    
+    private func buttonImage() -> Image {
+        if let image = image {
+            return Image(uiImage: image)
+        } else {
+            return Image(systemName: iconName.systemImageName)
         }
     }
     
