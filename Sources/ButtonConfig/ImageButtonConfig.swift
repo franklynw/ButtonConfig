@@ -301,8 +301,20 @@ extension ImageButtonConfig: FWMenuPresenting {
         switch itemType {
         case .fwMenu(let menuType, _):
             switch menuType {
-            case .standard(_, let presentedFromKeyboardAccessory), .settings(_, let presentedFromKeyboardAccessory):
+            case .standard(_, let presentedFromKeyboardAccessory, _), .settings(_, let presentedFromKeyboardAccessory, _):
                 return presentedFromKeyboardAccessory
+            }
+        default:
+            fatalError("This item type doesn't support FWMenu")
+        }
+    }
+    
+    public var hideMenuOnDeviceRotation: Bool {
+        switch itemType {
+        case .fwMenu(let menuType, _):
+            switch menuType {
+            case .standard(_, _, let hide), .settings(_, _, let hide):
+                return hide
             }
         default:
             fatalError("This item type doesn't support FWMenu")
