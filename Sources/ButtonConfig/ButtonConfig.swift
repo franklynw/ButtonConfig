@@ -148,7 +148,7 @@ extension ButtonConfig {
             
             let menuItems = menuSections.map { UIMenu(title: "", options: .displayInline, children: $0.menuItems.compactMap { $0.menuItem() })}
             
-            return UIMenu(title: title, image: UIImage(systemName: "chevron.right"), children: menuItems)
+            return UIMenu(title: title, image: image, children: menuItems)
         }
     }
 }
