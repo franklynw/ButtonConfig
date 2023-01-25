@@ -2,12 +2,39 @@
   "object": {
     "pins": [
       {
+        "package": "ActionGestureRecognizer",
+        "repositoryURL": "https://github.com/franklynw/ActionGestureRecognizer.git",
+        "state": {
+          "branch": null,
+          "revision": "78c71a7b2a47ad74a6326d8a4a6402a4c6ce1efc",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "package": "CGExtensions",
+        "repositoryURL": "https://github.com/franklynw/CGExtensions.git",
+        "state": {
+          "branch": null,
+          "revision": "1e6976399f25bf960c0b834983ae225574a3d1d9",
+          "version": "1.0.0"
+        }
+      },
+      {
         "package": "FWCommonProtocols",
         "repositoryURL": "https://github.com/franklynw/FWCommonProtocols.git",
         "state": {
           "branch": null,
           "revision": "f4338a068c1b719e32319b22eb79bb8b2ca544d8",
           "version": "1.0.0"
+        }
+      },
+      {
+        "package": "FWMenu",
+        "repositoryURL": "https://github.com/franklynw/FWMenu.git",
+        "state": {
+          "branch": null,
+          "revision": "ed49c56ebc86ac51fb94b82ec2afe3c22af91274",
+          "version": "4.0.0"
         }
       }
     ]
